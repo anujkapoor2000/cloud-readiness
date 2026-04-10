@@ -524,58 +524,17 @@ export default function App() {
     const overall = Math.round(Object.values(finalScores).reduce((a, b) => a + b, 0) / DOMAINS.length)
     const domainSummary = DOMAINS.map(d => `${d.label}: ${finalScores[d.id]}/100`).join(', ')
 
-    const prompt = `You are a Guidewire Cloud migration expert at NTT DATA. Analyse this cloud readiness assessment and return ONLY a raw JSON object with no markdown fences, no explanation.
+    const prompt = `You are a Guidewire Cloud migration expert at NTT DATA. Analyse this assessment. Return ONLY raw JSON — no markdown, no fences, no explanation. Be concise: keep all strings under 25 words.
 
 CLIENT: ${clientName || 'Insurance Carrier'}
 OVERALL SCORE: ${overall}/100
 DOMAIN SCORES: ${domainSummary}
 
-DETAILED ANSWERS:
+ANSWERS:
 ${buildAnswerSummary()}
 
-Return this exact JSON structure:
-{
-  "summary": "3-4 sentence executive summary of overall readiness and key themes",
-  "timelineEstimate": "e.g. 18-24 months",
-  "complexity": "Low | Medium | High | Very High",
-  "approach": "e.g. Phased lift-and-shift | Big bang | Hybrid",
-  "domains": {
-    "codebase": {
-      "insight": "2-3 sentences specific to their codebase answers",
-      "risks": ["risk1", "risk2"],
-      "actions": ["action1", "action2"]
-    },
-    "integrations": {
-      "insight": "2-3 sentences specific to their integration answers",
-      "risks": ["risk1", "risk2"],
-      "actions": ["action1", "action2"]
-    },
-    "datamodel": {
-      "insight": "2-3 sentences specific to their data model answers",
-      "risks": ["risk1", "risk2"],
-      "actions": ["action1", "action2"]
-    },
-    "apd": {
-      "insight": "2-3 sentences specific to their APD answers",
-      "risks": ["risk1", "risk2"],
-      "actions": ["action1", "action2"]
-    },
-    "operations": {
-      "insight": "2-3 sentences specific to their operations answers",
-      "risks": ["risk1", "risk2"],
-      "actions": ["action1", "action2"]
-    }
-  },
-  "priorityRecs": [
-    { "title": "Short title", "detail": "1-2 sentences on what to do and why" },
-    { "title": "Short title", "detail": "1-2 sentences" },
-    { "title": "Short title", "detail": "1-2 sentences" },
-    { "title": "Short title", "detail": "1-2 sentences" },
-    { "title": "Short title", "detail": "1-2 sentences" }
-  ],
-  "nttDataPitch": "2-3 sentences on how NTT DATA's Guidewire practice and accelerators (Gosu Copilot, APD Conversion, SurePath, Test DataHub, Axet AI) address the specific gaps identified",
-  "suggestedServices": ["Service 1", "Service 2", "Service 3", "Service 4"]
-}`
+Return exactly this JSON (all strings concise, under 25 words each):
+{"summary":"2 sentence executive summary","timelineEstimate":"e.g. 18-24 months","complexity":"Low|Medium|High|Very High","approach":"e.g. Phased migration","domains":{"codebase":{"insight":"1-2 sentences","risks":["risk1","risk2"],"actions":["action1","action2"]},"integrations":{"insight":"1-2 sentences","risks":["risk1","risk2"],"actions":["action1","action2"]},"datamodel":{"insight":"1-2 sentences","risks":["risk1","risk2"],"actions":["action1","action2"]},"apd":{"insight":"1-2 sentences","risks":["risk1","risk2"],"actions":["action1","action2"]},"operations":{"insight":"1-2 sentences","risks":["risk1","risk2"],"actions":["action1","action2"]}},"priorityRecs":[{"title":"title","detail":"1 sentence"},{"title":"title","detail":"1 sentence"},{"title":"title","detail":"1 sentence"},{"title":"title","detail":"1 sentence"},{"title":"title","detail":"1 sentence"}],"nttDataPitch":"2 sentences on NTT DATA accelerators addressing gaps","suggestedServices":["Service 1","Service 2","Service 3","Service 4"]}`
 
     try {
       const res = await fetch('/api/chat', {
@@ -583,7 +542,7 @@ Return this exact JSON structure:
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           model: 'claude-haiku-4-5',
-          max_tokens: 2000,
+          max_tokens: 4000,
           messages: [{ role: 'user', content: prompt }],
         }),
       })
